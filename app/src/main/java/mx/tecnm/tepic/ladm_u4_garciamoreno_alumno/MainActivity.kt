@@ -1,6 +1,7 @@
 package mx.tecnm.tepic.ladm_u4_garciamoreno_alumno
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
@@ -70,43 +71,37 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("MissingPermission")
     inner class Cliente(var dispositivo:BluetoothDevice,activity: MainActivity):Thread(){
         //lateinit var dispositivo: BluetoothDevice
-        lateinit var socket: BluetoothSocket
-        var activity=activity
-        init {
-            //this.dispositivo=dispositivo
-            try{
-                socket=dispositivo.createRfcommSocketToServiceRecord(UUID)
-            }catch(e:Exception){
-
-            }
-        }
-
+        //private val socket = device.createRfcommSocketToServiceRecord(uuid)
+        private val socket = dispositivo.createInsecureRfcommSocketToServiceRecord(UUID)
+        val activity = activity
         override fun run() {
-            super.run()
             Log.i("client", "Connecting")
-            try{
-
-                socket.connect()
-                runOnUiThread {
-                    Toast.makeText(activity,"Conectado como cliente", Toast.LENGTH_LONG).show()
+            try {
+                this.socket.connect()
+            }catch(e: Exception){
+                activity.runOnUiThread {
+                    AlertDialog.Builder(activity)
+                        .setTitle("Error")
+                        .setMessage("Ha ocurrido un error en la conexión")
+                        .show()
                 }
-            }catch(e:Exception){
-
             }
-            val outputStream: OutputStream = socket.outputStream
-            val inputStream: InputStream = socket.inputStream
-            try{
+            Log.i("client", "Sending")
+            val outputStream = this.socket.outputStream
+            val inputStream = this.socket.inputStream
+            try {
                 outputStream.write(binding.nocontrol.text.toString().toByteArray())
+                //outputStream.flush()
                 Log.i("client", "Sent")
-            }catch (e:Exception){
+                //Log.i("cliente","MENSAJE: ${message}")
+            } catch(e: Exception) {
                 Log.e("client", "Cannot send", e)
-            }finally {
+            } finally {
                 outputStream.close()
                 inputStream.close()
                 this.socket.close()
             }
         }
-
 
     }
     inner class Transmision(var socket: BluetoothSocket):Thread(){
