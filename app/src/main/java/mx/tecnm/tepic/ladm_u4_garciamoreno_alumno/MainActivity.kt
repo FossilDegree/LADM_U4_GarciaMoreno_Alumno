@@ -44,7 +44,8 @@ class MainActivity : AppCompatActivity() {
             binding.lista.adapter=ArrayAdapter(this,android.R.layout.simple_list_item_1,arr)
         }
         binding.lista.setOnItemClickListener { adapterView, view, i, l ->
-            if(!binding.nocontrol.text.toString().equals("")) {
+            val pattern = Regex("([0-9]{8})")
+            if(!(binding.nocontrol.text.toString().equals("")||!pattern.containsMatchIn(binding.nocontrol.text.toString()))) {
                 var cliente = Cliente(dispositivoBt[i], this)
                 cliente.start()
             }
@@ -90,7 +91,9 @@ class MainActivity : AppCompatActivity() {
             val outputStream = this.socket.outputStream
             val inputStream = this.socket.inputStream
             try {
-                outputStream.write(binding.nocontrol.text.toString().toByteArray())
+
+                //if(!(binding.nocontrol.text.toString().equals("")||!pattern.containsMatchIn(binding.nocontrol.text.toString())))
+                    outputStream.write(binding.nocontrol.text.toString().toByteArray())
                 //outputStream.flush()
                 Log.i("client", "Sent")
                 //Log.i("cliente","MENSAJE: ${message}")
